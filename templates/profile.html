@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Profile info</title> 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
+<script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  $('[data-toggle="popover"]').popover({
+    placement: 'bottom',
+    html: true,
+    content: "<div class='media'><img src={{ url_for('static', filename='images/user.png') }} class='mr-3' id='user-img'><div class='media-body'><h5 class='media-heading'>{{ username }}</h5><p>Excellent Bootstrap popover! I really love it.</p></div></div>"
+  });
+});
+</script>
+{% endblock %}
+{% block body %}
+<nav>
+  <h1>Fede AutoBot creator</h1>
+  <div>
+    <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="User information" id='user-data'>Account</button>
+  </div>
+</nav>
+<section id="main-body">
+  <div class="trello-status">
+    <h1>Trello account credentials</h1>
+    <h3 id="trello-status">{{ trello_status }}</h3>
+    {% if trello_status == 'Declined' %}
+    <a href='/trelloAuth'>Authenticate</a>
+    {% endif %}
+  </div>
+  <div class="gmail-status">
+    <h1>Gmail account credentials</h1>
+    <h3 id="gmail-status">{{ gmail_status }}</h3>
+    {% if gmail_status == 'Declined' %}
+    <a href='/authorize'>Authenticate</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
