@@ -43,43 +43,43 @@ def profile():
     gmail_adress = service.users().getProfile(userId='me').execute()
     flask.session['gmail_adress'] = dict(gmail_adress)['emailAddress']
 
-    # @flask.copy_current_request_context
-    # def trelloBot():
-      # try:
-      #       token = flask.session['user_token_trello']
-      #       email_list = service.users().messages().list(userId='me', maxResults=1).execute()
-      #       value = 1
-      #       while value == 1:
-      #         updated_list = service.users().messages().list(userId='me', maxResults=1).execute()
-      #         last_mail = updated_list['messages']
-      #         if last_mail != email_list['messages']:
-      #           email_list = updated_list
-      #           mail_id = last_mail[0]['id']
-      #           if mail_id:
-      #             message = service.users().messages().get(userId='me', id=mail_id).execute()
-      #             if message and 'INBOX' in message['labelIds']:
-      #               message_headers = message['payload']['headers']
-      #               for item in message_headers:
-      #                   if item['name'] == 'Subject':
-      #                       if '[TRELLO BOT]' in item['value']:
-      #                           print('Orden recibida...')
-      #                           subject = item['value'].replace('[TRELLO BOT] ', '')
-      #                           boards = requests.get(f'https://api.trello.com/1/members/me/boards?key={config.API_KEY}&token={token}').json()
+    @flask.copy_current_request_context
+    def trelloBot():
+      try:
+            token = flask.session['user_token_trello']
+            email_list = service.users().messages().list(userId='me', maxResults=1).execute()
+            value = 1
+            while value == 1:
+              updated_list = service.users().messages().list(userId='me', maxResults=1).execute()
+              last_mail = updated_list['messages']
+              if last_mail != email_list['messages']:
+                email_list = updated_list
+                mail_id = last_mail[0]['id']
+                if mail_id:
+                  message = service.users().messages().get(userId='me', id=mail_id).execute()
+                  if message and 'INBOX' in message['labelIds']:
+                    message_headers = message['payload']['headers']
+                    for item in message_headers:
+                        if item['name'] == 'Subject':
+                            if '[TRELLO BOT]' in item['value']:
+                                print('Orden recibida...')
+                                subject = item['value'].replace('[TRELLO BOT] ', '')
+                                boards = requests.get(f'https://api.trello.com/1/members/me/boards?key={config.API_KEY}&token={token}').json()
 
-      #                           for board in boards:
-      #                             id = board['id']
-      #                             board_lists = requests.get(f'https://api.trello.com/1/boards/{id}/lists?key={config.API_KEY}&token={token}').json()
-      #                             id_list = board_lists[0]['id']
-      #                             create_card = requests.post(f'https://api.trello.com/1/cards?idList={id_list}&key={config.API_KEY}&token={token}', {'name': subject, 'desc': message['snippet']})
+                                for board in boards:
+                                  id = board['id']
+                                  board_lists = requests.get(f'https://api.trello.com/1/boards/{id}/lists?key={config.API_KEY}&token={token}').json()
+                                  id_list = board_lists[0]['id']
+                                  create_card = requests.post(f'https://api.trello.com/1/cards?idList={id_list}&key={config.API_KEY}&token={token}', {'name': subject, 'desc': message['snippet']})
                                 
-      #                           # Marca el correo como leído.
-      #                           remove_label = service.users().messages().modify(userId='me', id=mail_id, body={"removeLabelIds": ['UNREAD']}).execute()
+                                # Marca el correo como leído.
+                                remove_label = service.users().messages().modify(userId='me', id=mail_id, body={"removeLabelIds": ['UNREAD']}).execute()
 
-      # except Exception as e:
-      #     print(e)
+      except Exception as e:
+          print(e)
     
-    # x = threading.Thread(target=trelloBot, args=())
-    # x.start()
+    x = threading.Thread(target=trelloBot, args=())
+    x.start()
   return flask.render_template('profile.html', trello_status=trello_status, gmail_status=gmail_status, username=username)
 
 
